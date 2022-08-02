@@ -38,7 +38,6 @@ function createFoldersIfDoesntExist() {
                 LOCAL_TRM
             });
         } else {
-            console.log('Directory exists');
         }
     });
     // CREAR GPA IF NOT EXISTS
@@ -46,7 +45,6 @@ function createFoldersIfDoesntExist() {
         if (error) {
             fs.mkdirSync(LOCAL_GPA);
         } else {
-            console.log('Directory exists');
         }
     })
     // CREAR ZBE IF NOT EXISTS
@@ -54,7 +52,6 @@ function createFoldersIfDoesntExist() {
         if (error) {
             fs.mkdirSync(LOCAL_ZBE);
         } else {
-            console.log('Directory exists');
         }
     })
     // CREAR CORREUS IF NOT EXISTS
@@ -62,7 +59,6 @@ function createFoldersIfDoesntExist() {
         if (error) {
             fs.mkdirSync(LOCAL_CORREUS);
         } else {
-            console.log('Directory exists');
         }
     })
 }
@@ -74,7 +70,6 @@ function createLogs() {
         recursive: true
     }, (err) => {
         if (err) throw err;
-        console.log('Folder LOGS created');
     });
     // CREATE A FILE WITH THE DATE AS A NAME if not exists
     fileName = actualDate;
