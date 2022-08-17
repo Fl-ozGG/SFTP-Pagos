@@ -22,6 +22,7 @@ let date = new Date();
 let actualDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.log';
 let actualHour = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
+
 const config = {
     host: SFTP_HOST,
     port: SFTP_PORT,
@@ -34,12 +35,12 @@ function createLogs() {
         recursive: true
     }, (err) => {
         if (err) throw err;
-        console.log('Folder LOGS created');
+        writeLog('Carpeta LOGS creada');
     });
     fileName = actualDate;
     global.fileName = fileName;
     fs.writeFile(LOCAL_LOGS + '/' + fileName, '', (err) => {
-        if (err) throw err;
+        if (err) writeLog(err);
     });
 }
 
@@ -52,7 +53,6 @@ function createLocalFolder(localFolder) {
             });
             writeLog(`Directori ${localFolder} creat`);
         } else {
-            console.log('Directory exists');
             writeLog(`No s'ha creat el directori ${localFolder} perquè ja existeix`);
         }
     });
@@ -64,26 +64,44 @@ function writeLog(text) {
     });
 }
 
-function downloadFiles(remoteFolder, localFolder) {
+function downloadFiles(REMOTE_PATH, LOCAL_PATH) {
+    // Connect SFTP
     sftp.connect(config)
         .then(() => {
-            return sftp.list(remoteFolder);
-        }).then((list) => {
-            list.forEach((item) => {
-                if (item.name != 'Backup') {
-                    sftp.fastGet(remoteFolder + '/' + item.name, localFolder + '/' + item.name)
-                        .then(() => {
-                            writeLog(`Descarregat ${item.name}`);
-                        }).catch((err) => {
-                            writeLog(`Error descarregant ${item.name}`);
-                            console.log(err);
-                        }).finally(() => {
-                            sftp.end();
-                        })
-                }
-            })
+            writeLog('Connectat al SFTP');
+            return sftp.list(REMOTE_PATH);
         })
-}
+        // if exists files in remote path
+        .then((files) => {
+                files.forEach(file => {
+                    if (file.name != 'Backup') {
+                        sftp.fastGet(REMOTE_PATH + '/' + file.name, LOCAL_PATH + '/' + file.name)
+                            .then(() => {
+                                writeLog('Descarregat ' + file.name + ' de TRM');
+                            })
+                            .catch(err => {
+                                writeLog(err);
+                            })
+                            .then(() => {
+                                sftp.fastPut(LOCAL_PATH + '/' + file.name, REMOTE_PATH + '/Backup/' + file.name)
+                                    .then(() => {
+                                        sftp.delete(REMOTE_PATH + '/' + file.name)
+                                            .then(() => {
+                                                writeLog('Arxiu ' + file.name + ' eliminat de TRM');
+                                            })
+                                            .catch(err => {
+                                                writeLog(err);
+                                            })
+                                    })
+                            })
+                    }
+                })
+                .then(() => {
+                    sftp.end();
+                    writeLog('Desconnectat del SFTP');
+                })
+        })
+    }
 
 
 
@@ -93,10 +111,10 @@ function setup() {
     createLocalFolder(LOCAL_GPA);
     createLocalFolder(LOCAL_ZBE);
     createLocalFolder(LOCAL_CORREUS);
-    //downloadFiles(REMOTE_TRM, LOCAL_TRM);
-    downloadFiles(REMOTE_GPA, LOCAL_GPA);
-    //downloadFiles(REMOTE_ZBE, LOCAL_ZBE);
-    //downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS);
+    downloadFiles(LOCAL_TRM, REMOTE_TRM);
+    downloadFiles(LOCAL_GPA, REMOTE_GPA);
+    //downloadFiles(LOCAL_ZBE, REMOTE_ZBE);
+    //downloadFiles(LOCAL_CORREUS, REMOTE_CORREUS);
 }
 
 setup();
