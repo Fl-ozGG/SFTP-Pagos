@@ -22,7 +22,6 @@ let date = new Date();
 let actualDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.log';
 let actualHour = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-
 const config = {
     host: SFTP_HOST,
     port: SFTP_PORT,
@@ -35,25 +34,24 @@ function createLogs() {
         recursive: true
     }, (err) => {
         if (err) throw err;
-        writeLog('Carpeta LOGS creada');
+        console.log('Carpeta LOGS creada');
     });
     fileName = actualDate;
     global.fileName = fileName;
     fs.writeFile(LOCAL_LOGS + '/' + fileName, '', (err) => {
-        if (err) writeLog(err);
+        if (err) console.log(err);
     });
 }
 
 function createLocalFolder(localFolder) {
-    // CREAR TRM IF NOT EXISTS
     fs.access(localFolder, (error) => {
         if (error) {
             fs.mkdirSync({
                 localFolder
             });
-            writeLog(`Directori ${localFolder} creat`);
+            console.log(`Directori ${localFolder} creat`);
         } else {
-            writeLog(`No s'ha creat el directori ${localFolder} perquè ja existeix`);
+            console.log(`No s'ha creat el directori ${localFolder} perquè ja existeix`);
         }
     });
 }
@@ -64,45 +62,38 @@ function writeLog(text) {
     });
 }
 
-function downloadFiles(REMOTE_PATH, LOCAL_PATH) {
+function downloadFiles(remotePath, localPath) {
     // Connect SFTP
     sftp.connect(config)
         .then(() => {
-            writeLog('Connectat al SFTP');
-            return sftp.list(REMOTE_PATH);
+            console.log('Connected to SFTP');
+            return sftp.list(remotePath);
         })
-        // if exists files in remote path
-        .then((files) => {
-                files.forEach(file => {
-                    if (file.name != 'Backup') {
-                        sftp.fastGet(REMOTE_PATH + '/' + file.name, LOCAL_PATH + '/' + file.name)
-                            .then(() => {
-                                writeLog('Descarregat ' + file.name + ' de TRM');
-                            })
-                            .catch(err => {
-                                writeLog(err);
-                            })
-                            .then(() => {
-                                sftp.fastPut(LOCAL_PATH + '/' + file.name, REMOTE_PATH + '/Backup/' + file.name)
-                                    .then(() => {
-                                        sftp.delete(REMOTE_PATH + '/' + file.name)
-                                            .then(() => {
-                                                writeLog('Arxiu ' + file.name + ' eliminat de TRM');
-                                            })
-                                            .catch(err => {
-                                                writeLog(err);
-                                            })
-                                    })
-                            })
-                    }
-                })
-                .then(() => {
-                    sftp.end();
-                    writeLog('Desconnectat del SFTP');
-                })
-        })
-    }
-
+        .then(files => {
+            files.forEach(file => {
+                if (file.name != 'Backup') {
+                    sftp.fastGet(remotePath + '/' + file.name, localPath + '/' + file.name)
+                        .then(() => {
+                            sftp.fastPut(localPath + '/' + file.name, remotePath + '/Backup/' + file.name)
+                                .then(() => {
+                                    sftp.delete(remotePath + '/' + file.name)
+                                        .then(() => {
+                                            console.log(`File ${file.name} deleted from TRM`);
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                })
+                        })
+                } else {
+                    console.log(`No hi ha cap fitxer a ${remotePath}`);
+                }
+            })
+        }).finally(() => {
+            sftp.end();
+        }
+        );
+}
 
 
 function setup() {
@@ -111,10 +102,8 @@ function setup() {
     createLocalFolder(LOCAL_GPA);
     createLocalFolder(LOCAL_ZBE);
     createLocalFolder(LOCAL_CORREUS);
-    downloadFiles(LOCAL_TRM, REMOTE_TRM);
-    downloadFiles(LOCAL_GPA, REMOTE_GPA);
-    //downloadFiles(LOCAL_ZBE, REMOTE_ZBE);
-    //downloadFiles(LOCAL_CORREUS, REMOTE_CORREUS);
+    downloadFiles(REMOTE_TRM, LOCAL_TRM);
+    downloadFiles(REMOTE_GPA, LOCAL_GPA);
 }
 
 setup();
