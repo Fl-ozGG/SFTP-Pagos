@@ -34,7 +34,7 @@ function createLogs() {
         recursive: true
     }, (err) => {
         if (err) throw err;
-        console.log('Carpeta LOGS creada');
+        console.log(`Carpeta LOGS ${fileName} creada correctament.`);
     });
     fileName = actualDate;
     global.fileName = fileName;
@@ -63,47 +63,59 @@ function writeLog(text) {
 }
 
 function downloadFiles(remotePath, localPath) {
-    // Connect SFTP
     sftp.connect(config)
         .then(() => {
-            console.log('Connected to SFTP');
+            console.log(`Connectat a ${remotePath}`);
             return sftp.list(remotePath);
         })
         .then(files => {
             files.forEach(file => {
                 if (file.name != 'Backup') {
+                    console.log(`Descarregat ${file.name}`)
                     sftp.fastGet(remotePath + '/' + file.name, localPath + '/' + file.name)
                         .then(() => {
+                            console.log(`Copiant ${file.name} a Backup`)
                             sftp.fastPut(localPath + '/' + file.name, remotePath + '/Backup/' + file.name)
                                 .then(() => {
                                     sftp.delete(remotePath + '/' + file.name)
                                         .then(() => {
-                                            console.log(`File ${file.name} deleted from TRM`);
+                                            sftp.delete(remotePath + file.name)
+                                            console.log(`Fitxer ${file.name} eliminat de TRM`);
                                         })
                                         .catch(err => {
                                             console.log(err);
+                                        }).finally(() => {
+                                            console.log(`Desconnectant de ${remotePath}`);
+                                            sftp.end();
                                         })
                                 })
                         })
-                } else {
-                    console.log(`No hi ha cap fitxer a ${remotePath}`);
                 }
             })
         }).finally(() => {
+            console.log(`Desconnectant de ${remotePath}`);
             sftp.end();
-        }
-        );
+        })
 }
 
+createLocalFolder(LOCAL_TRM);
+createLocalFolder(LOCAL_GPA);
+createLocalFolder(LOCAL_ZBE);
+createLocalFolder(LOCAL_CORREUS);
+createLogs();
 
-function setup() {
-    createLogs();
-    createLocalFolder(LOCAL_TRM);
-    createLocalFolder(LOCAL_GPA);
-    createLocalFolder(LOCAL_ZBE);
-    createLocalFolder(LOCAL_CORREUS);
+setTimeout(() => {
     downloadFiles(REMOTE_TRM, LOCAL_TRM);
-    downloadFiles(REMOTE_GPA, LOCAL_GPA);
-}
+}, 1000);
 
-setup();
+setTimeout(() => {
+    downloadFiles(REMOTE_GPA, LOCAL_GPA);
+}, 50000);
+
+setTimeout(() => {
+    downloadFiles(REMOTE_ZBE, LOCAL_ZBE);
+}, 10000);
+
+setTimeout(() => {
+    downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS);
+}, 15000);
