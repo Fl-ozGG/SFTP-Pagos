@@ -66,15 +66,13 @@ function writeLog(text) {
     });
 }
 
+
+
 function downloadFiles(remotePath, localPath, backupPath) {
-    sftp.connect(config)
-        .then(() => {
-            console.log(`Connectat a ${remotePath}`);
-            return sftp.list(remotePath);
-        })
-        .then(files => {
+    sftp.list(remotePath, (err, list) => {
+        then(files => {
             files.forEach(file => {
-                if (file.name != 'Backup') {
+                if (file.name !== 'Backup') {
                     console.log(`Descarregant ${file.name}...`);
                     sftp.fastGet(remotePath + '/' + file.name, localPath + '/' + file.name)
                         .then(() => {
@@ -85,32 +83,32 @@ function downloadFiles(remotePath, localPath, backupPath) {
                                         .catch(err => {
                                             console.log(err);
                                         })
-                                }).then(() => {
-                                    sftp.end();
                                 })
                         })
                 } else {
                     console.log(`No hi ha fitxers a ${remotePath}`);
-                    sftp.end();
                 }
             })
         }).catch(err => {
             console.log(err);
         })
+    })
 }
 
+function main () {
+    sftp.connect(config)
+    downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
+}
+
+main()
+
+
+/*
 createLocalFolder(LOCAL_TRM);
 createLocalFolder(LOCAL_GPA);
 createLocalFolder(LOCAL_ZBE);
 createLocalFolder(LOCAL_CORREUS);
 createLogs();
-
-setTimeout(() => {
-    downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
-}, 1000);
-
-setTimeout(() => {
-    downloadFiles(REMOTE_ZBE, LOCAL_ZBE, BACKUP_ZBE);
-}, 5000);
+*/
 
 
