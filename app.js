@@ -12,6 +12,10 @@ const LOCAL_TRM = process.env.LOCAL_TRM;
 const LOCAL_GPA = process.env.LOCAL_GPA;
 const LOCAL_ZBE = process.env.LOCAL_ZBE;
 const LOCAL_CORREUS = process.env.LOCAL_CORREUS;
+const BACKUP_TRM = process.env.BACKUP_TRM;
+const BACKUP_GPA = process.env.BACKUP_TRM;
+const BACKUP_ZBE = process.env.BACKUP_TRM;
+const BACKUP_CORREUS = process.env.BACKUP_TRM;
 let SFTP_HOST = process.env.SFTP_HOST;
 let SFTP_PORT = process.env.SFTP_PORT;
 let SFTP_USERNAME = process.env.SFTP_USERNAME;
@@ -49,9 +53,9 @@ function createLocalFolder(localFolder) {
             fs.mkdirSync({
                 localFolder
             });
-            console.log(`Directori ${localFolder} creat`);
+            console.log(`* Directori ${localFolder} creat *`);
         } else {
-            console.log(`No s'ha creat el directori ${localFolder} perquè ja existeix`);
+            console.log(`${localFolder} ja existeix`);
         }
     });
 }
@@ -62,7 +66,7 @@ function writeLog(text) {
     });
 }
 
-function downloadFiles(remotePath, localPath) {
+function downloadFiles(remotePath, localPath, backupPath) {
     sftp.connect(config)
         .then(() => {
             console.log(`Connectat a ${remotePath}`);
@@ -71,30 +75,27 @@ function downloadFiles(remotePath, localPath) {
         .then(files => {
             files.forEach(file => {
                 if (file.name != 'Backup') {
-                    console.log(`Descarregat ${file.name}`)
+                    console.log(`Descarregant ${file.name}...`);
                     sftp.fastGet(remotePath + '/' + file.name, localPath + '/' + file.name)
                         .then(() => {
-                            console.log(`Copiant ${file.name} a Backup`)
-                            sftp.fastPut(localPath + '/' + file.name, remotePath + '/Backup/' + file.name)
+                            console.log(`Copiant ${file.name} a Backup...`)
+                            sftp.fastGet(remotePath + '/' + file.name, backupPath + '/' + file.name)
                                 .then(() => {
                                     sftp.delete(remotePath + '/' + file.name)
-                                        .then(() => {
-                                            sftp.delete(remotePath + file.name)
-                                            console.log(`Fitxer ${file.name} eliminat de TRM`);
-                                        })
                                         .catch(err => {
                                             console.log(err);
-                                        }).finally(() => {
-                                            console.log(`Desconnectant de ${remotePath}`);
-                                            sftp.end();
                                         })
+                                }).then(() => {
+                                    sftp.end();
                                 })
                         })
+                } else {
+                    console.log(`No hi ha fitxers a ${remotePath}`);
+                    sftp.end();
                 }
             })
-        }).finally(() => {
-            console.log(`Desconnectant de ${remotePath}`);
-            sftp.end();
+        }).catch(err => {
+            console.log(err);
         })
 }
 
@@ -105,17 +106,11 @@ createLocalFolder(LOCAL_CORREUS);
 createLogs();
 
 setTimeout(() => {
-    downloadFiles(REMOTE_TRM, LOCAL_TRM);
+    downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
 }, 1000);
 
 setTimeout(() => {
-    downloadFiles(REMOTE_GPA, LOCAL_GPA);
-}, 50000);
+    downloadFiles(REMOTE_ZBE, LOCAL_ZBE, BACKUP_ZBE);
+}, 5000);
 
-setTimeout(() => {
-    downloadFiles(REMOTE_ZBE, LOCAL_ZBE);
-}, 10000);
 
-setTimeout(() => {
-    downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS);
-}, 15000);
