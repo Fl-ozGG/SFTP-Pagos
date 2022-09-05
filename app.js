@@ -66,11 +66,9 @@ function writeLog(text) {
     });
 }
 
-
-
 function downloadFiles(remotePath, localPath, backupPath) {
-    sftp.list(remotePath, (err, list) => {
-        then(files => {
+    sftp.list(remotePath)
+        .then(files => {
             files.forEach(file => {
                 if (file.name !== 'Backup') {
                     console.log(`Descarregant ${file.name}...`);
@@ -92,23 +90,155 @@ function downloadFiles(remotePath, localPath, backupPath) {
         }).catch(err => {
             console.log(err);
         })
-    })
 }
 
-function main () {
+// FUNCION PARA DESCARGAR ARCHIVOS
+function downloadFilesTest() {
+    // Connect SFTP
     sftp.connect(config)
-    downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
+        .then(() => {
+            console.log('Connectat al SFTP');
+            return sftp.list(REMOTE_TRM);
+        })
+        .then(files => {
+            files.forEach(file => {
+                if (file.name != 'Backup') {
+                    sftp.fastGet(REMOTE_TRM + '/' + file.name, LOCAL_TRM + '/' + file.name)
+                    sftp.fastGet(REMOTE_TRM + '/' + file.name, BACKUP_TRM + '/' + file.name)
+                        .then(() => {
+                            console.log('Descarregat: ' + file.name + ' de: TRM');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .then(() => {
+                            sftp.fastGet(REMOTE_TRM + '/' + file.name, BACKUP_TRM + '/' + file.name)
+                                .then(() => {
+                                    sftp.delete(REMOTE_TRM + '/' + file.name)
+                                        .then(() => {
+                                            console.log('Eliminat: ' + file.name + ' de: TRM');
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                })
+                        })
+                } else {
+                    console.log('No hi ha fitxers a TRM');
+                }
+            })
+        })
+        // DOWNLOAD GPA - MOVE TO BACKUP - DELETE ORIGINAL FILES FROM ROOT
+        .then(() => {
+            return sftp.list(REMOTE_GPA);
+        })
+        .then(files => {
+            files.forEach(file => {
+                if (file.name != 'Backup') {
+                    sftp.fastGet(REMOTE_GPA + '/' + file.name, LOCAL_GPA + '/' + file.name)
+                    sftp.fastGet(REMOTE_GPA + '/' + file.name, BACKUP_GPA + '/' + file.name)
+                        .then(() => {
+                            console.log('Descarregat: ' + file.name + ' de: GPA');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .then(() => {
+                            sftp.fastGet(REMOTE_GPA + '/' + file.name, BACKUP_GPA + '/' + file.name)
+                                .then(() => {
+                                    sftp.delete(REMOTE_GPA + '/' + file.name)
+                                        .then(() => {
+                                            console.log('Eliminat: ' + file.name + ' de: GPA');
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                })
+                        })
+                } else {
+                    console.log('No hi ha fitxers a TRM');
+                }
+            })
+        })
+        // DOWNLOAD ZBE - MOVE TO BACKUP - DELETE ORIGINAL FILES FROM ROOT
+        .then(() => {
+            return sftp.list(REMOTE_ZBE);
+        })
+        .then(files => {
+            files.forEach(file => {
+                if (file.name != 'Backup') {
+                    sftp.fastGet(REMOTE_ZBE + '/' + file.name, LOCAL_ZBE + '/' + file.name)
+                    sftp.fastGet(REMOTE_ZBE + '/' + file.name, BACKUP_ZBE + '/' + file.name)
+                        .then(() => {
+                            console.log('Descarregat: ' + file.name + ' de: ZBE');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .then(() => {
+                            sftp.fastGet(REMOTE_ZBE + '/' + file.name, BACKUP_ZBE + '/' + file.name)
+                                .then(() => {
+                                    sftp.delete(REMOTE_ZBE + '/' + file.name)
+                                        .then(() => {
+                                            console.log('Eliminat: ' + file.name + ' de: ZBE');
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                })
+                        })
+                } else {
+                    console.log('No hi ha fitxers a TRM');
+                }
+            })
+        })
+        // DOWNLOAD CORREUS - MOVE TO BACKUP - DELETE ORIGINAL FILES FROM ROOT
+        .then(() => {
+            return sftp.list(REMOTE_CORREUS);
+        })
+        // DOWNLOAD CORREUS FILES FROM SFTP TO LOCAL
+        .then(files => {
+            files.forEach(file => {
+                if (file.name != 'Backup') {
+                    sftp.fastGet(REMOTE_CORREUS + '/' + file.name, LOCAL_CORREUS + '/' + file.name)
+                    sftp.fastGet(REMOTE_CORREUS + '/' + file.name, BACKUP_CORREUS + '/' + file.name)
+                        .then(() => {
+                            console.log('Descarregat: ' + file.name + ' de: Correus');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .then(() => {
+                            sftp.fastGet(REMOTE_CORREUS + '/' + file.name, BACKUP_CORREUS + '/' + file.name)
+                                .then(() => {
+                                    sftp.delete(REMOTE_CORREUS + '/' + file.name)
+                                        .then(() => {
+                                            console.log('Eliminat: ' + file.name + ' de: Correus');
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                })
+                        })
+                } else {
+                    console.log('No hi ha fitxers a TRM');
+                }
+            })
+        })
+        // FINISH CONNECTION 
+        .finally(() => {
+            console.log('Desconnectant del SFTP');
+            sftp.end();
+        });
 }
 
-main()
-
-
-/*
 createLocalFolder(LOCAL_TRM);
 createLocalFolder(LOCAL_GPA);
 createLocalFolder(LOCAL_ZBE);
 createLocalFolder(LOCAL_CORREUS);
 createLogs();
-*/
+downloadFilesTest();
+
+
 
 
