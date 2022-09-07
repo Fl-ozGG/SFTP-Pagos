@@ -16,10 +16,10 @@ const BACKUP_TRM = process.env.BACKUP_TRM;
 const BACKUP_GPA = process.env.BACKUP_GPA;
 const BACKUP_ZBE = process.env.BACKUP_ZBE;
 const BACKUP_CORREUS = process.env.BACKUP_CORREUS;
-let SFTP_HOST = process.env.SFTP_HOST;
-let SFTP_PORT = process.env.SFTP_PORT;
-let SFTP_USERNAME = process.env.SFTP_USERNAME;
-let SFTP_PASSWORD = process.env.SFTP_PASSWORD;
+const SFTP_HOST = process.env.SFTP_HOST;
+const SFTP_PORT = process.env.SFTP_PORT;
+const SFTP_USERNAME = process.env.SFTP_USERNAME;
+ SFTP_PASSWORD = process.env.SFTP_PASSWORD;
 const LOCAL_LOGS = process.env.LOCAL_LOGS;
 
 const date = new Date();
@@ -38,13 +38,10 @@ function createLogs() {
         recursive: true
     }, (err) => {
         if (err) throw err;
-        console.log(`Carpeta LOGS ${fileName} creada correctament.`);
     });
     fileName = actualDate;
     global.fileName = fileName;
-    fs.writeFile(`${LOCAL_TRM}/${fileName}`, '', (err) => {
-        if (err) console.log(err);
-    });
+    fs.writeFile(`${LOCAL_TRM}/${fileName}`, '');
 }
 
 function createLocalFolder(localFolder) {
@@ -53,9 +50,6 @@ function createLocalFolder(localFolder) {
             fs.mkdirSync({
                 localFolder
             });
-            console.log(`* Directori ${localFolder} creat *`);
-        } else {
-            console.log(`${localFolder} ja existeix`);
         }
     });
 }
