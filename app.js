@@ -21,11 +21,11 @@ const SFTP_PORT = process.env.SFTP_PORT;
 const SFTP_USERNAME = process.env.SFTP_USERNAME;
  SFTP_PASSWORD = process.env.SFTP_PASSWORD;
 const LOCAL_LOGS = process.env.LOCAL_LOGS;
-
 const date = new Date();
 const actualDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.log';
 const actualHour = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
+// Configuració de la connexió amb el servidor SFTP
 const config = {
     host: SFTP_HOST,
     port: SFTP_PORT,
@@ -33,6 +33,7 @@ const config = {
     password: SFTP_PASSWORD
 }
 
+// Funció per crear logs
 function createLogs() {
     fs.mkdir(LOCAL_LOGS, {
         recursive: true
@@ -44,6 +45,7 @@ function createLogs() {
     fs.writeFile(`${LOCAL_TRM}/${fileName}`, '');
 }
 
+// Funció per crear directoris locals
 function createLocalFolder(localFolder) {
     fs.access(localFolder, (error) => {
         if (error) {
@@ -54,12 +56,14 @@ function createLocalFolder(localFolder) {
     });
 }
 
+// Funció per escriure logs
 function writeLog(text) {
     fs.appendFile(`${LOCAL_LOGS}/${global.fileName}`, `${actualHour}-${text}\n`, (err) => {
         if (err) throw err;
     });
 }
 
+// Funció per descarregar els fitxers del servidor
 async function downloadFiles(remotePath, localPath, backupPath) {
     let files = await sftp.list(remotePath);
     for (let i = 0; i < files.length; i++) {
@@ -72,6 +76,7 @@ async function downloadFiles(remotePath, localPath, backupPath) {
     }
 }
 
+// Funció per eliminar els fitxers del servidor
 async function deleteFiles(remotePath) {
     let files = await sftp.list(remotePath);
     for (let i = 0; i < files.length; i++) {
@@ -111,4 +116,5 @@ async function main() {
     }
 }
 
+// Execució del programa
 main();

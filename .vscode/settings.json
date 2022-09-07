@@ -4,6 +4,7 @@
         "ARCHIVOS",
         "Carpeta",
         "Conectado",
+        "Configuració",
         "Connectat",
         "Connexió",
         "contenido",
@@ -16,19 +17,28 @@
         "descargado",
         "DESCARGAR",
         "Descarregant",
+        "descarregar",
         "Descarregat",
         "Desconnectant",
         "Directori",
+        "directoris",
         "eliminat",
+        "escriure",
         "establerta",
+        "Execució",
         "existeix",
         "fitxers",
         "FUNCION",
         "lineas",
         "movido",
         "perquè",
+        "programa",
         "respaldo",
         "servidor",
         "tancada"
+    ],
+    "cSpell.ignoreWords": [
+        "Funció",
+        "eliminar"
     ]
 }
