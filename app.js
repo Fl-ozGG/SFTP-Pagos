@@ -19,11 +19,12 @@ const BACKUP_CORREUS = process.env.BACKUP_CORREUS;
 const SFTP_HOST = process.env.SFTP_HOST;
 const SFTP_PORT = process.env.SFTP_PORT;
 const SFTP_USERNAME = process.env.SFTP_USERNAME;
- SFTP_PASSWORD = process.env.SFTP_PASSWORD;
+const SFTP_PASSWORD = process.env.SFTP_PASSWORD;
 const LOCAL_LOGS = process.env.LOCAL_LOGS;
 const date = new Date();
-const actualDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.log';
-const actualHour = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+const actualDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
 
 // Configuració de la connexió amb el servidor SFTP
 const config = {
@@ -42,7 +43,11 @@ function createLogs() {
     });
     fileName = actualDate;
     global.fileName = fileName;
-    fs.writeFile(`${LOCAL_TRM}/${fileName}`, '');
+    fs.writeFile(`${LOCAL_TRM}/${fileName}`, '', (err) => {
+        if (err) {
+            writeLog(err);
+        }
+    });
 }
 
 // Funció per crear directoris locals
@@ -52,6 +57,8 @@ function createLocalFolder(localFolder) {
             fs.mkdirSync({
                 localFolder
             });
+        } else {
+            writeLog(`* ${localFolder} ja existeix *`);
         }
     });
 }
@@ -59,7 +66,9 @@ function createLocalFolder(localFolder) {
 // Funció per escriure logs
 function writeLog(text) {
     fs.appendFile(`${LOCAL_LOGS}/${global.fileName}`, `${actualHour}-${text}\n`, (err) => {
-        if (err) throw err;
+        if (err) {
+            writeLog(err);
+        };
     });
 }
 
