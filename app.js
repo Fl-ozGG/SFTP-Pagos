@@ -12,6 +12,7 @@ const LOCAL_TRM = process.env.LOCAL_TRM;
 const LOCAL_GPA = process.env.LOCAL_GPA;
 const LOCAL_ZBE = process.env.LOCAL_ZBE;
 const LOCAL_CORREUS = process.env.LOCAL_CORREUS;
+const LOCAL_LOGS = process.env.LOCAL_LOGS;
 const BACKUP_TRM = process.env.BACKUP_TRM;
 const BACKUP_GPA = process.env.BACKUP_GPA;
 const BACKUP_ZBE = process.env.BACKUP_ZBE;
@@ -20,7 +21,6 @@ const SFTP_HOST = process.env.SFTP_HOST;
 const SFTP_PORT = process.env.SFTP_PORT;
 const SFTP_USERNAME = process.env.SFTP_USERNAME;
 const SFTP_PASSWORD = process.env.SFTP_PASSWORD;
-const LOCAL_LOGS = process.env.LOCAL_LOGS;
 const date = new Date();
 const actualDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -43,7 +43,7 @@ function createLogs() {
     });
     fileName = actualDate;
     global.fileName = fileName;
-    fs.writeFile(`${LOCAL_TRM}/${fileName}`, '', (err) => {
+    fs.writeFile(`${LOCAL_LOGS}/${fileName}.log`, '', (err) => {
         if (err) {
             writeLog(err);
         }
@@ -57,9 +57,7 @@ function createLocalFolder(localFolder) {
             fs.mkdirSync({
                 localFolder
             });
-        } else {
-            writeLog(`* ${localFolder} ja existeix *`);
-        }
+        } 
     });
 }
 
@@ -97,6 +95,7 @@ async function deleteFiles(remotePath) {
     }
 }
 
+// Funció principal 
 async function main() {
     createLogs();
     createLocalFolder(LOCAL_TRM);
