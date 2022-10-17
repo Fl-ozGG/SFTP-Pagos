@@ -2,6 +2,7 @@ let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 let fs = require('fs');
 require('dotenv').config();
+var cron = require('node-cron');
 
 // VARIABLES DE ENTORNO
 const REMOTE_TRM = process.env.REMOTE_TRM;
@@ -57,7 +58,7 @@ function createLocalFolder(localFolder) {
             fs.mkdirSync({
                 localFolder
             });
-        } 
+        }
     });
 }
 
@@ -95,34 +96,38 @@ async function deleteFiles(remotePath) {
     }
 }
 
-// Funció principal 
-async function main() {
-    createLogs();
-    createLocalFolder(LOCAL_TRM);
-    createLocalFolder(LOCAL_GPA);
-    createLocalFolder(LOCAL_ZBE);
-    createLocalFolder(LOCAL_CORREUS);
-    createLocalFolder(BACKUP_TRM);
-    createLocalFolder(BACKUP_GPA);
-    createLocalFolder(BACKUP_ZBE);
-    createLocalFolder(BACKUP_CORREUS);
-    try {
-        await sftp.connect(config);
-        writeLog('Connexió amb el servidor SFTP establerta correctament.');
-        await downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
-        await downloadFiles(REMOTE_GPA, LOCAL_GPA, BACKUP_GPA);
-        await downloadFiles(REMOTE_ZBE, LOCAL_ZBE, BACKUP_ZBE);
-        await downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS, BACKUP_CORREUS);
-        await deleteFiles(REMOTE_TRM);
-        await deleteFiles(REMOTE_GPA);
-        await deleteFiles(REMOTE_ZBE);
-        await deleteFiles(REMOTE_CORREUS);
-        writeLog('Connexió amb el servidor SFTP tancada correctament.');
-        await sftp.end();
-    } catch (err) {
-        writeLog(err);
+// Funció per executar la descàrrega cada dia a les 11 del mati
+cron.schedule('07 12 * * *', () => {
+    // Funció principal 
+    async function main() {
+        createLogs();
+        createLocalFolder(LOCAL_TRM);
+        createLocalFolder(LOCAL_GPA);
+        createLocalFolder(LOCAL_ZBE);
+        createLocalFolder(LOCAL_CORREUS);
+        createLocalFolder(BACKUP_TRM);
+        createLocalFolder(BACKUP_GPA);
+        createLocalFolder(BACKUP_ZBE);
+        createLocalFolder(BACKUP_CORREUS);
+        try {
+            await sftp.connect(config);
+            writeLog('Connexió amb el servidor SFTP establerta correctament.');
+            await downloadFiles(REMOTE_TRM, LOCAL_TRM, BACKUP_TRM);
+            await downloadFiles(REMOTE_GPA, LOCAL_GPA, BACKUP_GPA);
+            await downloadFiles(REMOTE_ZBE, LOCAL_ZBE, BACKUP_ZBE);
+            await downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS, BACKUP_CORREUS);
+            await deleteFiles(REMOTE_TRM);
+            await deleteFiles(REMOTE_GPA);
+            await deleteFiles(REMOTE_ZBE);
+            await deleteFiles(REMOTE_CORREUS);
+            writeLog('Connexió amb el servidor SFTP tancada correctament.');
+            await sftp.end();
+        } catch (err) {
+            writeLog(err);
+        }
     }
-}
 
-// Execució del programa
-main();
+    // Execució del programa
+    main();
+});
+
