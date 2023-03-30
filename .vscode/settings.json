@@ -31,10 +31,12 @@
         "FUNCION",
         "lineas",
         "movido",
+        "nodefetch",
         "perquè",
         "programa",
         "respaldo",
         "servidor",
+        "spauth",
         "tancada"
     ],
     "cSpell.ignoreWords": [
