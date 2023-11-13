@@ -6,6 +6,7 @@
     "node-cron": "^3.0.2",
     "nodemon": "^2.0.19",
     "ssh2-sftp-client": "^9.0.1",
+    "table": "^6.8.1",
     "virustotal-api": "^1.1.7"
   }
 }
