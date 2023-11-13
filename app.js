@@ -3,6 +3,7 @@ let sftp = new Client();
 let fs = require('fs');
 require('dotenv').config();
 
+
 // VARIABLES DE ENTORNO
 const REMOTE_TRM = process.env.REMOTE_TRM;
 const REMOTE_GPA = process.env.REMOTE_GPA;
@@ -114,10 +115,10 @@ async function main() {
     createLocalFolder(LOCAL_GPA);
     createLocalFolder(LOCAL_ZBE);
     createLocalFolder(LOCAL_CORREUS);
-    createLocalFolder(BACKUP_TRM);
-    createLocalFolder(BACKUP_GPA);
-    createLocalFolder(BACKUP_ZBE);
-    createLocalFolder(BACKUP_CORREUS);
+    //createLocalFolder(BACKUP_TRM);
+    //createLocalFolder(BACKUP_GPA);
+    //createLocalFolder(BACKUP_ZBE);
+    //createLocalFolder(BACKUP_CORREUS);
     try {
         await sftp.connect(config);
         writeLog('Connexió amb el servidor SFTP establerta correctament.');
@@ -132,7 +133,7 @@ async function main() {
         writeLog('Connexió amb el servidor SFTP tancada correctament.');
         setTimeout(() => {
             console.log("Proces executat correctament.");
-        }, "3000")
+        }, "6000")
         await sftp.end();
         process.exit(0);
     } catch (err) {
