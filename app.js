@@ -4,16 +4,17 @@ let fs = require('fs');
 const { table } = require('table'); 
 require('dotenv').config();
 
-
 // VARIABLES DE ENTORNO
 const REMOTE_TRM = process.env.REMOTE_TRM;
 const REMOTE_GPA = process.env.REMOTE_GPA;
 const REMOTE_ZBE = process.env.REMOTE_ZBE;
 const REMOTE_CORREUS = process.env.REMOTE_CORREUS;
+const REMOTE_SUPORTS = process.env.REMOTE_SUPORTS; // Nueva variable
 const LOCAL_TRM = process.env.LOCAL_TRM;
 const LOCAL_GPA = process.env.LOCAL_GPA;
 const LOCAL_ZBE = process.env.LOCAL_ZBE;
 const LOCAL_CORREUS = process.env.LOCAL_CORREUS;
+const LOCAL_SUPORTS = process.env.LOCAL_SUPORTS; // Nueva variable
 const LOCAL_LOGS = process.env.LOCAL_LOGS;
 const SFTP_HOST = process.env.SFTP_HOST;
 const SFTP_PORT = process.env.SFTP_PORT;
@@ -27,9 +28,9 @@ const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}
 function checkExtension(file) {
     const extension = file.split('.').pop();
     if (extension !== 'txt' && extension !== 'xml') {
-        return `${ file }.txt`;
+        return `${file}.txt`;
     } else {
-        return file.endsWith('.xml') ? file : `${ file }.txt`;
+        return file.endsWith('.xml') ? file : `${file}.txt`;
     }
 }
 
@@ -80,15 +81,16 @@ async function downloadFiles(remotePath, localPath) {
         let file = files[i];
         if (file.type == '-') {
             await sftp.fastGet(`${remotePath}/${file.name}`, `${localPath}/${file.name}`);
-            // si el fitxer que hem descarregat a local no te extensió .txt li afegim
             let localFile = checkExtension(file.name);
-            fs.rename(`${localPath}/${file.name}`, `${localPath}/${localFile}`, (err) => {
-                if (err) {
-                    writeLog(err);
-                }
-            });
+            if (localFile !== file.name) {
+                fs.rename(`${localPath}/${file.name}`, `${localPath}/${localFile}`, (err) => {
+                    if (err) {
+                        writeLog(err);
+                    }
+                });
+            }
             downloadedFiles.push(localFile);  
-            writeLog(`* ${file.name} descarregat i copiat correctament. *`);
+            writeLog(`* ${file.name} descarregat i copiat correctament com ${localFile}. *`);
         }
     }
     return downloadedFiles;
@@ -113,6 +115,7 @@ async function main() {
     createLocalFolder(LOCAL_GPA);
     createLocalFolder(LOCAL_ZBE);
     createLocalFolder(LOCAL_CORREUS);
+    createLocalFolder(LOCAL_SUPORTS); // Crear carpeta local para SUPORTS
     try {
         await sftp.connect(config);
         writeLog('Connexió amb el servidor SFTP establerta correctament.');
@@ -122,12 +125,14 @@ async function main() {
         const downloadedFilesGPA = await downloadFiles(REMOTE_GPA, LOCAL_GPA);
         const downloadedFilesZBE = await downloadFiles(REMOTE_ZBE, LOCAL_ZBE);
         const downloadedFilesCORREUS = await downloadFiles(REMOTE_CORREUS, LOCAL_CORREUS);
+        const downloadedFilesSUPORTS = await downloadFiles(REMOTE_SUPORTS, LOCAL_SUPORTS); // Descargar SUPORTS
 
         // Eliminar archivos en el servidor
         await deleteFiles(REMOTE_TRM);
         await deleteFiles(REMOTE_GPA);
         await deleteFiles(REMOTE_ZBE);
         await deleteFiles(REMOTE_CORREUS);
+        await deleteFiles(REMOTE_SUPORTS); // Eliminar archivos de SUPORTS
 
         writeLog('Connexió amb el servidor SFTP tancada correctament.');
 
@@ -137,7 +142,8 @@ async function main() {
             ['TRM', downloadedFilesTRM.length > 0 ? downloadedFilesTRM.join('\n') : '0'],
             ['GPA', downloadedFilesGPA.length > 0 ? downloadedFilesGPA.join('\n') : '0'],
             ['ZBE', downloadedFilesZBE.length > 0 ? downloadedFilesZBE.join('\n') : '0'],
-            ['Correus', downloadedFilesCORREUS.length > 0 ? downloadedFilesCORREUS.join('\n') : '0']
+            ['Correus', downloadedFilesCORREUS.length > 0 ? downloadedFilesCORREUS.join('\n') : '0'],
+            ['SUPORTS', downloadedFilesSUPORTS.length > 0 ? downloadedFilesSUPORTS.join('\n') : '0'] // Añadir SUPORTS a la tabla
         ];
 
         console.log(table(tableData));
