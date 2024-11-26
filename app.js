@@ -1,7 +1,7 @@
 let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 let fs = require('fs');
-const { table } = require('table'); 
+const { table } = require('table');
 require('dotenv').config();
 
 // VARIABLES DE ENTORNO
@@ -27,13 +27,13 @@ const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}
 // Funció per a comprovar posar extensió .txt si no la té 
 function checkExtension(file) {
     const extension = file.split('.').pop();
+    console.log(extension)
     if (extension !== 'txt' && extension !== 'xml') {
         return `${file}.txt`;
     } else {
         return file.endsWith('.xml') ? file : `${file}.txt`;
     }
 }
-
 // Configuració de la connexió amb el servidor SFTP
 const config = {
     host: SFTP_HOST,
@@ -55,13 +55,7 @@ function createLogs() {
 
 // Funció per crear directoris locals
 function createLocalFolder(localFolder) {
-    fs.access(localFolder, (error) => {
-        if (error) {
-            fs.mkdirSync({
-                localFolder
-            });
-        }
-    });
+   console.log(localFolder)
 }
 
 // Funció per escriure logs
@@ -76,7 +70,7 @@ function writeLog(text) {
 // Funció per descarregar els fitxers del servidor
 async function downloadFiles(remotePath, localPath) {
     let files = await sftp.list(remotePath);
-    let downloadedFiles = [];  
+    let downloadedFiles = [];
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
         if (file.type == '-') {
@@ -89,7 +83,7 @@ async function downloadFiles(remotePath, localPath) {
                     }
                 });
             }
-            downloadedFiles.push(localFile);  
+            downloadedFiles.push(localFile);
             writeLog(`* ${file.name} descarregat i copiat correctament com ${localFile}. *`);
         }
     }
@@ -151,6 +145,8 @@ async function main() {
         setTimeout(() => {
             console.log("Proces executat correctament.");
         }, "6000");
+
+        
 
         await sftp.end();
         process.exit(0);
