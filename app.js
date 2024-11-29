@@ -27,7 +27,7 @@ const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}
 // Funció per a comprovar posar extensió .txt si no la té 
 function checkExtension(file) {
     const extension = file.split('.').pop();
-    console.log(extension)
+    
     if (extension !== 'txt' && extension !== 'xml') {
         return `${file}.txt`;
     } else {

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node app.js && node processFiles.js"
+    "start": "node app.js && node filesController.js",
+    "start2": "node clearZbeFile.js"
   },
   "dependencies": {
     "clamdjs": "^1.0.2",
