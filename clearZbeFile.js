@@ -103,7 +103,7 @@ function leerArchivo(rutaArchivo, lineasModificadas) {
     // Reemplazar la última línea modificada
     lineasLeidas[lineasLeidas.length - 1] = nuevaUltimaLinea;
 
-    console.log('Última línea modificada');
+
 
     // Escribir las líneas modificadas al archivo
     escribirArchivoModificado(rutaArchivo, lineasLeidas);
@@ -114,7 +114,7 @@ function leerArchivo(rutaArchivo, lineasModificadas) {
   });
 }
 
-// Función para escribir las líneas modificadas al archivo
+// Función para escribir el archivo modificado
 function escribirArchivoModificado(rutaArchivo, lineasLeidas) {
   const tempFile = `${rutaArchivo}.tmp`; // Archivo temporal para escritura
   const writeStream = fs.createWriteStream(tempFile, 'utf8');
@@ -128,7 +128,7 @@ function escribirArchivoModificado(rutaArchivo, lineasLeidas) {
   writeStream.on('finish', () => {
     try {
       fs.renameSync(tempFile, rutaArchivo); // Renombrar el archivo temporal al original
-      console.log('Archivo modificado correctamente con la última línea actualizada.');
+      console.log('Archivo renombrado.');
     } catch (err) {
       console.error(`Error al renombrar el archivo: ${err.message}`);
       if (fs.existsSync(tempFile)) {
@@ -142,7 +142,7 @@ function escribirArchivoModificado(rutaArchivo, lineasLeidas) {
   });
 }
 
-// Función que modifica la última línea
+// Función que modifica la última línea del archivo de ZBE añadiendo el numero tota de lineas y el recuento de pagos
 function modificarUltimaLinea(linea, totalLineas, numeroFinal) {
   const longitudLinea = linea.length;
 
@@ -166,17 +166,7 @@ function modificarUltimaLinea(linea, totalLineas, numeroFinal) {
 
   return lineaModificada;
 }
-
-
-// Llamar a la función
-const ruta = 'F:/Intercambios/0_SFTP - Fitxers Caixa/ZBE - 026/CTE00282_20241129034129_C602_01.txt.txt';
-//modificarArchivoIgnorandoLineas(ruta, modificarLinea, modificarUltimaLinea);
-
-
-
-
-//-------------------------------------------------------
-
+// Funcion para obtener las rutas individuales de cada archivo 
 function obtenerRutasTxt(carpetaRuta) {
   const rutasTxt = [];
 
@@ -199,11 +189,10 @@ function obtenerRutasTxt(carpetaRuta) {
   return rutasTxt;
 }
 
-// Ejemplo de uso
-const carpeta = 'C:/Users/igurrea/Desktop/FAKE-SFTP-Tresoreria/REMOTE/ZBE - 026 - REMOTE - TEST'; // Cambia esto por la ruta de tu carpeta
+
+const carpeta = 'F:/Intercambios/0_SFTP - Fitxers Caixa/ZBE - 026';
 const txtArchivos = obtenerRutasTxt(carpeta);
 
-//console.log('Archivos .txt encontrados:', txtArchivos);
 txtArchivos.forEach((archivoZBE) => {
   modificarArchivoIgnorandoLineas(archivoZBE, modificarLinea, modificarUltimaLinea);
 })

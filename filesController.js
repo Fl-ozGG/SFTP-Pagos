@@ -88,8 +88,6 @@ function moveFile(originalPath, destinationPath) {
                 fs.rename(originalPath, newFilePathWithTimestamp, (err) => {
                     if (err) {
                         console.error('Error renaming and moving file:', err);
-                    } else {
-                        console.log('File renamed and moved successfully to', newFilePathWithTimestamp);
                     }
                 });
             }
