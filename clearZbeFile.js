@@ -42,7 +42,7 @@ async function modificarArchivoIgnorandoLineas(rutaArchivo, modificarLinea, modi
       writeStream.on('finish', () => {
         try {
           fs.renameSync(tempFile, rutaArchivo); // Renombrar el archivo temporal al original
-          console.log('Archivo nombrado correctamente.');
+
 
           // Leer las líneas del archivo modificado
           leerArchivo(rutaArchivo, lineasModificadas);
@@ -97,6 +97,7 @@ function leerArchivo(rutaArchivo, lineasModificadas) {
 
     // Modificar la última línea
     const ultimaLinea = lineasLeidas[lineasLeidas.length - 1];
+    const penultimaLinea = lineasLeidas[lineasLeidas.length - 2];
     const numeroFinal = (lineasLeidas.length - 4) * 500; // Calcular el número final
     const nuevaUltimaLinea = modificarUltimaLinea(ultimaLinea, lineasLeidas.length, numeroFinal);
 
@@ -128,7 +129,7 @@ function escribirArchivoModificado(rutaArchivo, lineasLeidas) {
   writeStream.on('finish', () => {
     try {
       fs.renameSync(tempFile, rutaArchivo); // Renombrar el archivo temporal al original
-      console.log('Archivo renombrado.');
+
     } catch (err) {
       console.error(`Error al renombrar el archivo: ${err.message}`);
       if (fs.existsSync(tempFile)) {

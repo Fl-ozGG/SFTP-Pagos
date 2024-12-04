@@ -5,7 +5,6 @@ require('dotenv').config();
 const trmRoute = process.env.LOCAL_TRM;
 const zbeRoute = process.env.LOCAL_ZBE;
 const originRoute = process.env.LOCAL_CORREUS;
-const trashRoute = "C:/Users/igurrea/Desktop/backup de correus/Eliminados";
 
 const tributes = [
     { tributeNumber: '149       ', tributePath: trmRoute },
@@ -44,7 +43,7 @@ function isTributeValid(files, tributes, callback) {
     files.forEach(filePath => {
         fs.readFile(filePath, 'utf8', (err, content) => {
             if (err) {
-                console.error(`Error reading file: ${filePath}`, err);
+                console.log('directori ignorat.')
             } else {
                 const matchedTribute = tributes.find(tribute => content.includes(tribute.tributeNumber));
                 matchedTribute ? moveFile(filePath, matchedTribute.tributePath) : false;
@@ -121,7 +120,7 @@ function deleteRemainingFiles(originRoute, tributes) {
 
             fs.readFile(filePath, 'utf8', (err, content) => {
                 if (err) {
-                    console.error(`Error reading file: ${filePath}`, err);
+                    console.error(`Error code 3 - reading file: ${filePath}`,);
                     return;
                 }
 
