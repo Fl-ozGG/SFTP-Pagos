@@ -1,33 +1,64 @@
-function changeLastFourDigits(lineToCopy, lineToModify) {
-  // Mantén todo excepto los últimos 4 caracteres de lineToModify
-  let replacement = lineToCopy.slice(51);  // A partir del carácter 51 de lineToCopy
-  let prefix = lineToModify.slice(0, 51);  // Los primeros 51 caracteres de lineToModify
-  // Combina el prefijo con el reemplazo
-  return prefix + replacement;
-}
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-function replaceLastLane(indexToPut, arrOfLines, lineToPut) {
-  arrOfLines[indexToPut] = lineToPut; // Reemplaza la línea en la posición dada
-}
+// Ruta de la carpeta
+const carpeta = 'C:/Users/igurrea/Desktop/backup de correus/Crea una carpeta';
 
-const datos = `          
-  0470084013                  00000002000000000000003000                       026                    
-  0470084013                  00000002000000000000003000                       026                    
-  0470084013                  00000002000000000000003000                       026                    
-  0470084013                  00000002000000000000003000                       026                    
-  0470084013                  00000002000000000000012000                       026                    
-  0570084013                  00000006000000000000000000                                              
-`;
+// Lee el contenido de la carpeta
+fs.readdir(carpeta, (err, archivos) => {
+  if (err) {
+    console.error('Error al leer la carpeta:', err);
+    return;
+  }
 
-let lanesArr = datos.split('\n');  // Dividimos los datos en líneas
-let lineToModify = lanesArr[lanesArr.length - 2]; // Última línea
-let lineToCopy = lanesArr[lanesArr.length - 3];  // Penúltima línea
-let finalLine = changeLastFourDigits(lineToCopy, lineToModify); // Cambiar los últimos 4 dígitos
+  // Filtra solo los archivos (si quieres excluir subdirectorios)
+  archivos.forEach(archivo => {
 
-let indexOfLastLine = lanesArr.length - 2; // Índice de la última línea
-console.log(indexOfLastLine)
-replaceLastLane(indexOfLastLine, lanesArr, finalLine); // Reemplazar la última línea
+    const rutaCompleta = path.join(carpeta, archivo);
+    fs.stat(rutaCompleta, (err, stats) => {
+      if (err) {
+        console.error('Error al obtener información del archivo:', err);
+        return;
+      }
+      if (stats.isFile()) {
+        // Si es un archivo, lo leemos
+        fs.readFile(rutaCompleta, 'utf8', (err, data) => {
 
-// Unir las líneas de nuevo para formar la cadena completa
-let updatedDatos = lanesArr.join('\n');
-console.log(updatedDatos)
+          let lineas = data.split('\n');
+          let numFinal;
+          let lineaInsertar;
+
+          // Encuentra el número final y genera la nueva línea a insertar
+          lineas.forEach((linea, index) => {
+            if (linea == lineas[lineas.length - 3]) {
+              numFinal = linea.slice(49, 54);
+              lineaInsertar = lineas[lineas.length - 2].slice(0, 49) + numFinal + '                                              \r'
+              console.log(numFinal)
+              // aqui quiero añadir la logica necesaria para que escriba en mi archivo txt la variable lineaInsertar, reemplazando la linea anterior que hubiese en este indice
+              lineas[lineas.length - 2] = lineaInsertar
+
+              const texto = lineas.join('\n'); // Esto los separará por espacios, usa '\n' para nuevas líneas
+
+              // Escribir el texto a un archivo
+              fs.writeFile(rutaCompleta, texto, (err) => {
+                if (err) {
+                  console.error('Error al escribir el archivo:', err);
+                } else {
+                  console.log('Archivo guardado correctamente.');
+                }
+              });
+
+
+            }
+          });
+          console.log(lineas)
+
+
+        });
+      }
+    });
+  });
+});
+
+

@@ -27,7 +27,7 @@ const actualHour = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}
 // Funció per a comprovar posar extensió .txt si no la té 
 function checkExtension(file) {
     const extension = file.split('.').pop();
-    
+
     if (extension !== 'txt' && extension !== 'xml') {
         return `${file}.txt`;
     } else {
@@ -53,10 +53,6 @@ function createLogs() {
     });
 }
 
-// Funció per crear directoris locals
-function createLocalFolder(localFolder) {
-   console.log(localFolder)
-}
 
 // Funció per escriure logs
 function writeLog(text) {
@@ -105,11 +101,7 @@ async function deleteFiles(remotePath) {
 // Funció principal 
 async function main() {
     createLogs();
-    createLocalFolder(LOCAL_TRM);
-    createLocalFolder(LOCAL_GPA);
-    createLocalFolder(LOCAL_ZBE);
-    createLocalFolder(LOCAL_CORREUS);
-    createLocalFolder(LOCAL_SUPORTS); // Crear carpeta local para SUPORTS
+
     try {
         await sftp.connect(config);
         writeLog('Connexió amb el servidor SFTP establerta correctament.');
@@ -146,7 +138,7 @@ async function main() {
             console.log("Proces executat correctament.");
         }, "6000");
 
-        
+
 
         await sftp.end();
         process.exit(0);
