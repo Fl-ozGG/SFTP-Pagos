@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "node app.js && node filesController.js && node clearZbeFile.js",
+    "start": "node app.js && node filesController.js && node clearZbeFile.js && node fixLastLane.js",
     "start-test": "node timerRun.js"
   },
   "dependencies": {
