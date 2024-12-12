@@ -5,7 +5,7 @@ function runTask() {
     const today = new Date();
     const dayOfWeek = today.getDay();
 
-    //la funcion utilizado  en el cron de linux : 30 10 * * 1-5 /ruta/a/tu/script/runTask.sh
+    //la funcion utilizada  en el cron de linux : 30 10 * * 1-5 /ruta/a/tu/script/runTask.sh
     // crontab -e en la terminal de linux 
     //crontab -l para verificar que este programada correctamente
 
